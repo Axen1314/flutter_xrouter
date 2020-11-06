@@ -4,13 +4,17 @@ class Parameter {
 }
 
 class Property {
-  static const ROUTES = "routes";
+  static const String WIDGET_BUILDERS = "widgetBuilders";
+  static const String ROUTE_LOADERS = "routeLoaders";
 }
 
 class Dependency {
-  static const WIDGETS = "package:flutter/widgets.dart";
+  static const String WIDGETS = "package:flutter/widgets.dart";
+//  static const String ROUTE_LOADER = ""
 }
 
 class Class {
-  static const XROUTER_CACHE = "XRouterCache";
+  static const String XROUTER_CACHE = "XRouterCache";
+  static const String WIDGET = "Widget";
+  static const String ROUTE_LOADER = "RouteLoader";
 }
