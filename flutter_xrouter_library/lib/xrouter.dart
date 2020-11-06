@@ -1,13 +1,30 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_xrouter_library/handler.dart';
 
 class XRouter {
+  XRouter._();
+  static XRouter _instance;
+
   BuildContext _context;
-  XRouter._(BuildContext context) {
-    this._context = context;
-  }
+  List<IRouteHandler> handlers = [
+    SimpleWidgetHandler(),
+    SimpleRoutePageBuilderHandler()
+  ];
 
   factory XRouter.of(BuildContext context) {
-    return XRouter._(context);
+    assert(context != null);
+    _ensureXRouterInitialize();
+    _instance._context = context;
+    return _instance;
+  }
+
+  void addHandler(IRouteHandler handler) {
+    handlers.insert(0, handler);
+  }
+
+  static void _ensureXRouterInitialize() {
+    if (_instance == null)
+      _instance = XRouter._();
   }
 
   void push(String path, {int port:80, Object arguments}) {
@@ -19,5 +36,6 @@ class XRouter {
   }
 
   void handleOnGenerateRoute(RouteSettings settings) {
+
   }
 }

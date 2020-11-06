@@ -15,25 +15,6 @@ bool _thisOrAncestorTypeOfTarget(InterfaceType source, TypeToken target) {
 
 bool isSupportAnnotatedClass(Element element, TypeToken supportAnnotatedElementType) {
   ClassElement classElement = element as ClassElement;
-  var interfaceType = classElement.supertype;
-  while (interfaceType != null) {
-    String superClassName = interfaceType.toString();
-    if (superClassName == supportAnnotatedElementType.toString()) {
-      return true;
-    }
-    interfaceType = interfaceType.superclass;
-  }
-  return false;
-}
-
-bool isSupportAnnotatedClass2(Element element, TypeToken supportAnnotatedElementType) {
-  ClassElement classElement = element as ClassElement;
   var interfaceType = classElement.thisType;
   return _thisOrAncestorTypeOfTarget(interfaceType, supportAnnotatedElementType);
-}
-
-bool isSupportAnnotatedMethod(Element element, TypeToken valueType) {
-  MethodElement methodElement = element as MethodElement;
-  var interfaceType = methodElement.returnType;
-  return _thisOrAncestorTypeOfTarget(interfaceType, valueType);
 }

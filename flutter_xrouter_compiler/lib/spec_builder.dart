@@ -49,17 +49,18 @@ class ClassSpecBuilder extends SpecBuilder<ClassSpec> {
   String _className;
   ClassSpecBuilder(this._className): assert(_className != null);
   List<PropertySpec> _properties = List();
-  CodeBlockSpec _constructCodeBlock = CodeBlockSpec.line("");
+  CodeBlockSpec _constructCodeBlock = CodeBlockSpec.line("\n");
 
   void addProperty(PropertySpecBuilder builder) {
-    _properties.add(builder.build());
-    _constructCodeBlock.addLines(builder.initializeCodes);
-    _putDependencies(builder.dependencies);
+    if (builder.initializeCodes.isNotEmpty) {
+      _constructCodeBlock.addLines(builder.initializeCodes);
+      _putDependencies(builder.dependencies);
+      _properties.add(builder.build());
+    }
   }
 
   void addProperties(Iterable<PropertySpecBuilder> builders) {
     for (PropertySpecBuilder builder in builders) {
-      if (builder.initializeCodes.isNotEmpty)
         addProperty(builder);
     }
   }
@@ -68,17 +69,15 @@ class ClassSpecBuilder extends SpecBuilder<ClassSpec> {
   ClassSpec build() {
     return ClassSpec.build(_className,
         constructorBuilder:
-            (ClassSpec owner) => Set()..add(ConstructorSpec.normal(owner, codeBlock: _constructCodeBlock)),
+            (ClassSpec owner) => <ConstructorSpec>{ConstructorSpec.normal(owner, codeBlock: _constructCodeBlock)},
         properties: _properties);
   }
 
 }
 
-class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
+abstract class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
   String propertyName;
   TypeToken valueType = TypeToken.ofDynamic();
-  TypeToken supportAnnotatedElementType;
-  ElementKind supportAnnotatedElementKind;
   List<String> initializeCodes = List();
   String Function(String builder) elementInitializeCode;
   List<DependencySpec> Function() extrasDependencySpecs;
@@ -86,8 +85,6 @@ class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
   PropertySpecBuilder(
       this.propertyName, {
         this.valueType,
-        this.supportAnnotatedElementType,
-        this.supportAnnotatedElementKind:ElementKind.CLASS,
         this.elementInitializeCode,
         this.extrasDependencySpecs
       })
@@ -95,25 +92,11 @@ class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
     assert(propertyName != null);
     if (this.valueType == null)
       this.valueType = TypeToken.ofDynamic();
-    if (this.supportAnnotatedElementType == null)
-      this.supportAnnotatedElementType = this.valueType;
     if (this.elementInitializeCode == null)
       this.elementInitializeCode = (String elementName) => "$elementName();";
   }
 
-  bool _isSupportAnnotatedElement(Element element) {
-    if (element.kind == supportAnnotatedElementKind) {
-      switch(element.kind) {
-        case ElementKind.CLASS:
-          return isSupportAnnotatedClass2(element,
-              this.supportAnnotatedElementType);
-        case ElementKind.METHOD:
-          return isSupportAnnotatedMethod(element,
-              valueType);
-      }
-    }
-    return false;
-  }
+  bool _isSupportAnnotatedElement(Element element);
 
   bool addElement(Element element, ConstantReader annotation) {
     if (_isSupportAnnotatedElement(element)) {
@@ -144,23 +127,49 @@ class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
   }
 }
 
-class MethodSpecBuilder extends SpecBuilder<MethodSpec> {
-  String methodName;
-  bool isStatic;
-  TypeToken valueType;
-
-  MethodSpecBuilder(
-      this.methodName, {
-        this.valueType,
-        this.isStatic
-      });
+class ClassPropertySpecBuilder extends PropertySpecBuilder {
+  TypeToken supportAnnotatedElementType;
+  ClassPropertySpecBuilder(String propertyName, {
+        TypeToken valueType,
+        this.supportAnnotatedElementType,
+        String Function(String builder) elementInitializeCode,
+        List<DependencySpec> Function() extrasDependencySpecs
+      }): super(propertyName,
+      valueType: valueType,
+      elementInitializeCode: elementInitializeCode,
+      extrasDependencySpecs: extrasDependencySpecs)
+  {
+    if (this.supportAnnotatedElementType == null)
+      this.supportAnnotatedElementType = valueType;
+  }
 
   @override
-  MethodSpec build() {
-    return MethodSpec.build(
-        methodName,
-        returnType: TypeToken.ofMapByToken(TypeToken.ofString(), valueType),
-        isStatic: isStatic);
+  bool _isSupportAnnotatedElement(Element element) {
+    if (element.kind == ElementKind.CLASS) {
+      return isSupportAnnotatedClass(element, supportAnnotatedElementType);
+    }
+    return false;
   }
+
+}
+
+class FunctionPropertySpecBuilder extends PropertySpecBuilder {
+  TypeToken supportReturnType;
+
+  FunctionPropertySpecBuilder(String propertyName, {
+    this.supportReturnType,
+    String Function(String builder) elementInitializeCode,
+    List<DependencySpec> Function() extrasDependencySpecs
+  }): super(propertyName,
+      valueType: TypeToken.of(Function),
+      elementInitializeCode: elementInitializeCode,
+      extrasDependencySpecs: extrasDependencySpecs)
+  {
+    if (supportReturnType == null)
+      supportReturnType = TypeToken.ofDynamic();
+  }
+
+  @override
+  bool _isSupportAnnotatedElement(Element element) => element.kind == ElementKind.FUNCTION;
 
 }
