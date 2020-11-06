@@ -207,6 +207,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  flutter_xrouter_library:
+    dependency: "direct main"
+    description:
+      path: "../flutter_xrouter_library"
+      relative: true
+    source: path
+    version: "0.0.1"
   glob:
     dependency: transitive
     description:

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:dartpoet/dartpoet.dart';
+import 'package:flutter_xrouter_compiler/utils.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'constants.dart';
@@ -97,19 +98,18 @@ class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
     if (this.supportAnnotatedElementType == null)
       this.supportAnnotatedElementType = this.valueType;
     if (this.elementInitializeCode == null)
-      this.elementInitializeCode = (String className) => "$className();";
+      this.elementInitializeCode = (String elementName) => "$elementName();";
   }
 
   bool _isSupportAnnotatedElement(Element element) {
     if (element.kind == supportAnnotatedElementKind) {
-      ClassElement classElement = element as ClassElement;
-      var interfaceType = classElement.supertype;
-      while (interfaceType != null) {
-        String superClassName = interfaceType.toString();
-        if (superClassName == supportAnnotatedElementType.toString()) {
-          return true;
-        }
-        interfaceType = interfaceType.superclass;
+      switch(element.kind) {
+        case ElementKind.CLASS:
+          return isSupportAnnotatedClass2(element,
+              this.supportAnnotatedElementType);
+        case ElementKind.METHOD:
+          return isSupportAnnotatedMethod(element,
+              valueType);
       }
     }
     return false;
@@ -120,10 +120,10 @@ class PropertySpecBuilder extends SpecBuilder<PropertySpec> {
       DartObject obj = annotation.objectValue;
       String path = obj.getField(Parameter.PATH).toStringValue();
       int port = obj.getField(Parameter.PORT).toIntValue();
-      String className = element.name;
+      String elementName = element.name;
       String sourceUri = element.librarySource.uri.toString();
       putDependency(sourceUri, DependencySpec.import(sourceUri));
-      initializeCodes.add("$propertyName[\"$path:$port\"] = ${elementInitializeCode(className)}");
+      initializeCodes.add("$propertyName[\"$path:$port\"] = ${elementInitializeCode(elementName)}");
       return true;
     }
     return false;

@@ -11,7 +11,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      onGenerateRoute:
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -53,7 +52,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-@XRoute('path/secondHome')
+@XRoute('path/secondHome', port: 1080)
 class MySecondHomePage extends StatefulWidget {
   MySecondHomePage({Key key, this.title}) : super(key: key);
 

@@ -5,3 +5,7 @@ class XRoute {
   final String path;
   const XRoute(this.path, {this.port:80});
 }
+
+class XRouteRoot {
+  const XRouteRoot();
+}

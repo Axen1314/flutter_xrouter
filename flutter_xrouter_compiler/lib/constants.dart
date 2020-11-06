@@ -5,6 +5,7 @@ class Parameter {
 
 class Property {
   static const String WIDGET_BUILDERS = "widgetBuilders";
+  static const String WIDGET_GETTERS = "widgetGetters";
   static const String ROUTE_LOADERS = "routeLoaders";
 }
 

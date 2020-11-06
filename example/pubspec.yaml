@@ -27,6 +27,8 @@ dependencies:
     path: "../flutter_xrouter_compiler"
   flutter_xrouter_annotation:
     path: "../flutter_xrouter_annotation"
+  flutter_xrouter_library:
+    path: "../flutter_xrouter_library"
 
 
   # The following adds the Cupertino Icons font to your application.
