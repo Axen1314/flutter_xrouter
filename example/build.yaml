@@ -1,8 +1,28 @@
+targets:
+  $default:
+    builders:
+      flutter_xrouter_compiler|xrouter_element_builder:
+        enabled: true
+        generate_for:
+          exclude: ['**.internal.dart']
+      flutter_xrouter_compiler|xrouter_file_builder:
+        enabled: true
+        options: { 'write': true }
+        generate_for:
+          exclude: ['**.internal.dart']
+
 builders:
-  flutter_xrouter_builder:
-    import: "package:flutter_xrouter_compiler/library_builder.dart"
-    builder_factories: ['routeBuilder']
-    build_extensions: { '.dart': ['.g.dart'] }
-    required_inputs: ['.dart']
+  xrouter_file_builder:
+    import: 'package:flutter_xrouter_compiler/builder.dart'
+    builder_factories: ['fileBuilder']
+    build_extensions: { '.route.dart': ['.internal.dart'] }
     auto_apply: root_package
+    build_to: source
+
+  xrouter_element_builder:
+    import: 'package:flutter_xrouter_compiler/builder.dart'
+    builder_factories: ['elementBuilder']
+    auto_apply: root_package
+    build_extensions: { '.route.dart': ['.internal.dart'] }
+    runs_before: ['flutter_xrouter_compiler|fileBuilder']
     build_to: source

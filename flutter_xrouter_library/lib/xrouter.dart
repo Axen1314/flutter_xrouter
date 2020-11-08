@@ -1,41 +1,64 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_xrouter_library/handler.dart';
+import 'package:flutter_xrouter_library/converter.dart';
 
-class XRouter {
-  XRouter._();
-  static XRouter _instance;
+typedef ElementLoader = dynamic Function(RouteSettings settings);
 
-  BuildContext _context;
-  List<IRouteHandler> handlers = [
-    SimpleWidgetHandler(),
-    SimpleRoutePageBuilderHandler()
+abstract class IXRouterLoader {
+  List<IRouteConverter> onLoadRouteConverters() => null;
+}
+
+abstract class AbstractXRouter {
+
+  AbstractXRouter() {
+    IXRouterLoader loader = routerLoader;
+    List<IRouteConverter> converters = loader.onLoadRouteConverters();
+    if (converters != null && converters.isNotEmpty) {
+      for (IRouteConverter converter in converters) {
+        addConverter(converter);
+      }
+    }
+  }
+  BuildContext context;
+  List<IRouteConverter> _converters = [
+    SimpleWidgetConverter(),
+    SimpleRoutePageBuilderConverter()
   ];
+  Map<String, ElementLoader> _loaders = {};
 
-  factory XRouter.of(BuildContext context) {
-    assert(context != null);
-    _ensureXRouterInitialize();
-    _instance._context = context;
-    return _instance;
+  void addConverter(IRouteConverter converter) {
+    _converters.insert(0, converter);
   }
 
-  void addHandler(IRouteHandler handler) {
-    handlers.insert(0, handler);
+  void addElementLoader(String path, ElementLoader loader, {int port:80}) {
+    _loaders.putIfAbsent("$path:$port", () => loader);
   }
 
-  static void _ensureXRouterInitialize() {
-    if (_instance == null)
-      _instance = XRouter._();
-  }
-
-  void push(String path, {int port:80, Object arguments}) {
-    Navigator.pushNamed(_context, "$path:$port", arguments: arguments);
+  Future<Object> push(String path, {int port:80, Object arguments}) {
+    return Navigator.of(context).pushNamed("$path:$port", arguments: arguments);
   }
 
   void pop<T extends Object>([T result]) {
-    Navigator.of(_context).pop(result);
+    Navigator.of(context).pop(result);
   }
 
-  void handleOnGenerateRoute(RouteSettings settings) {
-
+  @protected
+  Route handleOnGenerateRoute(RouteSettings settings) {
+    String path = settings.name;
+    if (!_loaders.containsKey(path)) {
+      return null;
+    }
+    ElementLoader loader = _loaders[path];
+    dynamic element = loader(settings);
+    if (element is Route) return element;
+    for (IRouteConverter converter in _converters) {
+      if (converter.isConvertible(element)) {
+        return converter.onConvert(settings, element);
+      }
+    }
+    throw new FlutterError("Require converter to convert type ${element.runtimeType}!");
   }
+
+  @protected
+  IXRouterLoader get routerLoader;
 }
+

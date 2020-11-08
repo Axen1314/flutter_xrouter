@@ -1,10 +1,13 @@
 import 'package:example/main.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_xrouter_annotation/annotation.dart';
+import 'package:flutter_xrouter_library/xrouter.dart';
 
-abstract class RouteLoader {
-  Route onLoadRoute();
-}
+@XRouteRoot()
+class CommonXRouterLoader extends IXRouterLoader {}
 
-@XRoute("path/ok")
-Widget login(RouteSettings settings) => MyHomePage();
+@XRoute("home")
+Widget home(RouteSettings settings) => MyHomePage();
+
+@XRoute("home/login")
+Widget login(RouteSettings settings) => LoginPage();

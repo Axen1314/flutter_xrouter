@@ -1,3 +1,4 @@
+import 'package:example/loader.internal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_xrouter_annotation/annotation.dart';
 import './loader.dart';
@@ -29,13 +30,14 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      onGenerateRoute: (RouteSettings settings) =>
+          XRouter.handleRoute(settings),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
 
-@XRoute('path/home')
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -54,7 +56,6 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-@XRoute('path/secondHome', port: 1080)
 class MySecondHomePage extends StatefulWidget {
   MySecondHomePage({Key key, this.title}) : super(key: key);
 
@@ -96,14 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+    XRouter.of(context).push("home/login");
   }
 
   @override
@@ -157,4 +151,20 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class LoginPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'Login',
+    home: Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Center(
+        child: Text('Welcome world!'),
+      )
+    )
+  );
+
 }

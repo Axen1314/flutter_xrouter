@@ -6,6 +6,12 @@ class XRoute {
   const XRoute(this.path, {this.port:80});
 }
 
+class Path {
+  final String path;
+  final int port;
+  Path(this.path, {this.port:80});
+}
+
 class XRouteRoot {
   const XRouteRoot();
 }

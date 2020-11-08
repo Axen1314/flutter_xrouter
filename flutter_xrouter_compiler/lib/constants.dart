@@ -11,11 +11,17 @@ class Property {
 
 class Dependency {
   static const String WIDGETS = "package:flutter/widgets.dart";
-//  static const String ROUTE_LOADER = ""
+  static const String XROUTER = "package:flutter_xrouter_library/xrouter.dart";
 }
 
 class Class {
-  static const String XROUTER_CACHE = "XRouterCache";
+  static const String XROUTER = "XRouter";
   static const String WIDGET = "Widget";
-  static const String ROUTE_LOADER = "RouteLoader";
+  static const String IXROUTER_LOADER = "IXRouterLoader";
+  static const String ABSTRACT_XROUTER = "AbstractXRouter";
+  static const String BUILD_CONTEXT = "BuildContext";
+}
+
+class Getter {
+  static const String ROUTER_LOADER = "routerLoader";
 }
